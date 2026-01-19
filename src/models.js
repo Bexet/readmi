@@ -5,17 +5,13 @@ import inquirer from 'inquirer';
 import { config } from './config.js';
 
 export const AVAILABLE_MODELS = [
-  'gemini-1.5-flash',
-  'gemini-1.5-flash-latest',
-  'gemini-1.5-flash-8b',
-  'gemini-1.5-flash-8b-latest',
-  'gemini-1.5-pro',
-  'gemini-1.5-pro-latest',
-  'gemini-2.0-flash-001',
+  'gemini-2.0-flash-lite',
   'gemini-2.0-flash',
-  'gemini-2.0-flash-lite-preview-02-05',
-  'gemini-2.5-flash-preview-04-17',
-  'gemini-2.5-pro-preview-05-06'
+  'gemini-2.5-flash-lite',
+  'gemini-2.5-flash',
+  'gemini-2.5-pro',
+  'gemini-3-flash-preview',
+  'gemini-3-pro-preview',
 ];
 
 export async function selectModel(apiKey, spinner) {
@@ -41,12 +37,9 @@ export async function selectModel(apiKey, spinner) {
     }
   }
   
-  const preferredModels = [
-    'gemini-2.0-flash',
-    'gemini-1.5-flash',
-    'gemini-1.5-pro',
-    'gemini-1.5-flash-8b'
-  ];
+  const preferredModels = AVAILABLE_MODELS
+    .filter(m => !m.includes('pro'))
+    .reverse();
   
   let selectedModel = null;
   let workingModel = null;
@@ -77,7 +70,7 @@ export async function selectModel(apiKey, spinner) {
 
   if (!workingModel || !selectedModel) {
     workingModel = genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash',
+      model: preferredModels[0],
       generationConfig: {
         temperature: 0.8,
         maxOutputTokens: 2048,
@@ -85,24 +78,14 @@ export async function selectModel(apiKey, spinner) {
         topK: 32
       }
     });
-    selectedModel = 'gemini-1.5-flash';
+    selectedModel = preferredModels[0];
   }
 
-  const modelType = selectedModel?.toLowerCase() || '';
-  if (modelType.includes('2.5')) {
+  if (selectedModel) {
+    const version = selectedModel.split('-')[1];
     spinner.stopAndPersist({
       symbol: chalk.cyan('→'),
-      text: chalk.white('Model: ') + chalk.cyan.bold('Gemini 2.5')
-    });
-  } else if (modelType.includes('2.0')) {
-    spinner.stopAndPersist({
-      symbol: chalk.cyan('→'),
-      text: chalk.white('Model: ') + chalk.cyan.bold('Gemini 2.0')
-    });
-  } else if (modelType.includes('1.5')) {
-    spinner.stopAndPersist({
-      symbol: chalk.cyan('→'),
-      text: chalk.white('Model: ') + chalk.cyan.bold('Gemini 1.5')
+      text: chalk.white('Model: ') + chalk.cyan.bold(`Gemini ${version}`),
     });
   }
 
