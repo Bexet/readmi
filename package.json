@@ -1,6 +1,6 @@
 {
   "name": "@jayanithu/readmi",
-  "version": "2.4.8",
+  "version": "2.5.0",
   "description": "Modern README generator powered by AI",
   "main": "index.js",
   "type": "module",
